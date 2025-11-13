@@ -14,14 +14,14 @@ const Approval = {
       INSERT INTO approvals 
         (request_id, approver_role, approver_name, approver_email, decision, comments, decided_at)
       VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
-      RETURNING *;
+      RETURNING *; 
     `;
     const values = [
-      request_id,
+      request_id, 
       approver_role,
-      approver_name || null,
-      approver_email || null,
-      decision,
+      approver_name || null, 
+      approver_email || null, 
+      decision,    
       comments || null,
   ];
     const { rows } = await pool.query(query, values);
@@ -35,10 +35,10 @@ const Approval = {
       VALUES ($1, $2, $3, $4, 'Pending', 'Waiting for review', NULL)
     `;
     await pool.query(query, [request_id, approver_role, approver_name, approver_email]);
-  },
-
-  async findByRequestId(request_id) {
-    const query = `
+  }, 
+ 
+  async findByRequestId(request_id) { 
+    const query = `   
       SELECT * FROM approvals 
       WHERE request_id = $1 
       ORDER BY decided_at NULLS FIRST, id
@@ -46,6 +46,6 @@ const Approval = {
     const { rows } = await pool.query(query, [request_id]);
     return rows;
   },
-};
-
+}; 
+ 
 module.exports = Approval;

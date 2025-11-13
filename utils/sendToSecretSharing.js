@@ -8,7 +8,7 @@ exports.sendToSecretSharing = async (data) => {
       summary: data.summary,
       reason: data.reason,
       approvedDate: new Date(),
-    });
+    }); 
     console.log('Sent to Secret Sharing App');
   } catch (err) {
     console.error('Failed to send to Secret Sharing App:', err.message);
