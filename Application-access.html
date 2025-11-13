@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Access Request Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      padding: 50px 30px;
+      background: linear-gradient(135deg, #fffafa 0%, #fffafa 50%, #fffafa 100%);
+      min-height: 100vh;
+      color: #ffebeb;
+    } 
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 50px;
+      border-radius: 20px;
+      box-shadow: 
+        0 20px 60px rgba(220, 53, 69, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #ff6b6b, #dc3545, #c82333, #a71e2a);
+      box-shadow: 0 2px 10px rgba(173, 31, 43, 0.3);
+    }
+    
+    .container::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(220, 53, 69, 0.03) 0%, transparent 70%);
+      z-index: 0;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header h1 {
+      font-size: 42px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #dc3545, #a71e2a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 15px;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      font-size: 18px;
+      color: #666;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-section {
+      background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+      padding: 35px;
+      border-radius: 16px;
+      border: 1px solid rgba(220, 53, 69, 0.1);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .service-box {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%);
+      border: 2px solid #dc3545;
+      padding: 30px;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(220, 53, 69, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .service-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(220, 53, 69, 0.02) 0%, transparent 50%);
+    }
+
+    .service-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(220, 53, 69, 0.15);
+    }
+
+    .service-icon {
+      font-size: 32px;
+      color: #dc3545;
+      margin-right: 20px;
+      background: rgba(221, 206, 207, 0.1);
+      padding: 15px;
+      border-radius: 12px;
+      float: left;
+    }
+
+    .service-content {
+      overflow: hidden;
+    }
+
+    .service-content strong {
+      font-size: 22px;
+      color: #a71e2a;
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .service-content small {
+      color: #666;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: 600;
+      color: #444;
+      font-size: 15px;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 14px 18px;
+      margin-top: 8px;
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+      font-size: 15px;
+      font-family: inherit;
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+      background: white;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #dc3545;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1);
+      transform: translateY(-2px);
+    }
+    
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    button {
+      margin-top: 40px;
+      padding: 18px 45px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 50%, #a71e2a 100%);
+      color: white;
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+      position: relative;
+      overflow: hidden;
+      grid-column: 1 / -1;
+      justify-self: center;
+      min-width: 200px;
+    }
+    
+    button:hover {
+      background: linear-gradient(135deg, #c82333 0%, #a71e2a 50%, #8b1a24 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(220, 53, 69, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.6s;
+    }
+    
+    button:hover::after {
+      left: 100%;
+    }
+
+    h3 {
+      font-size: 24px;
+      margin: 10px 0 25px;
+      color: #343a40;
+      font-weight: 700;
+      position: relative;
+      padding-left: 20px;
+      grid-column: 1 / -1;
+    }
+    
+    h3::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 25px;
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      border-radius: 3px;
+    }
+
+    .note {
+      margin-top: 30px;
+      font-size: 15px;
+      color: #a71e2a;
+      background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%);
+      border-left: 5px solid #dc3545;
+      padding: 20px 25px;
+      border-radius: 10px;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(220, 53, 69, 0.1);
+      grid-column: 1 / -1;
+    }
+    
+    .note strong {
+      color: #a71e2a;
+      display: block;
+      margin-bottom: 5px;
+      font-size: 16px;
+    }
+    
+    /* Form field enhancements */
+    .required::after {
+      content: '*';
+      color: #dc3545;
+      margin-left: 4px;
+    }
+    
+    /* Custom select arrow */
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23dc3545' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 18px center;
+      background-size: 18px;
+    }
+    
+    /* Floating labels effect */
+    .form-group {
+      position: relative;
+    }
+
+    /* Responsive design */
+    @media (max-width: 1024px) {
+      .container {
+        max-width: 95%;
+        padding: 40px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 30px 20px;
+      }
+      
+      .container {
+        padding: 30px;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .form-section {
+        padding: 25px;
+      }
+      
+      .header h1 {
+        font-size: 36px;
+      }
+      
+      .service-box {
+        padding: 25px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 20px 15px;
+      }
+      
+      .container {
+        padding: 25px;
+      }
+      
+      .header h1 {
+        font-size: 32px;
+      }
+      
+      button {
+        width: 100%;
+        padding: 16px;
+      }
+      
+      .service-icon {
+        float: none;
+        display: block;
+        margin-bottom: 15px;
+      }
+    }
+
+    /* Decorative elements */
+    .corner-decoration {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      z-index: 0;
+    }
+    
+    .corner-1 {
+      top: 20px;
+      right: 20px;
+      background: radial-gradient(circle, rgba(220, 53, 69, 0.05) 0%, transparent 70%);
+    }
+    
+    .corner-2 {
+      bottom: 20px;
+      left: 20px;
+      background: radial-gradient(circle, rgba(220, 53, 69, 0.05) 0%, transparent 70%);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="corner-decoration corner-1"></div>
+  <div class="corner-decoration corner-2"></div>
+  
+  <div class="header">
+    <h1>Access Request Portal</h1>
+    <p>Submit your access requests through our streamlined approval workflow</p>
+  </div>
+
+  <form id="requestForm">
+    <h3>Service Request</h3>
+    
+    <div class="service-box">
+      <i class="fas fa-robot service-icon"></i>
+      <div class="service-content">
+        <strong>Application Database Access</strong>
+        <small>For an existing application that needs access to a database. This includes read/write permissions, connection strings, and environment-specific access controls.</small>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-section">
+        <label for="requester_name">Name <span class="required"></span></label>
+        <input type="text" id="requester_name" name="requester_name" required />
+
+        <label for="requester_email">Email <span class="required"></span></label>
+        <input type="email" id="requester_email" name="requester_email" required />
+
+        <label for="request_type">Request Type <span class="required"></span></label>
+        <select id="request_type" name="request_type" required>
+          <option value="">-- Select Request Type --</option>
+          <option value="Application Database Access">Application Database Access</option>
+          <option value="Password Recovery">Password Recovery</option>
+          <option value="API Access">API Access</option>
+          <option value="System Permissions">System Permissions</option>
+        </select>
+      </div>
+
+      <div class="form-section">
+        <label for="summary">Summary <span class="required"></span></label>
+        <input type="text" id="summary" name="summary" required />
+
+        <label for="date_needed">Date Needed <span class="required"></span></label>
+        <input type="date" id="date_needed" name="date_needed" required />
+      </div>
+
+      <div class="full-width">
+        <label for="description">Why is this needed? <span class="required"></span></label>
+        <textarea id="description" name="description" placeholder="Please provide a detailed explanation of why this access is required..." required></textarea>
+
+        <label for="reason">Technical Requirements & Description</label>
+        <textarea id="reason" name="reason" placeholder="Include any technical specifications, database names, environment details, or special requirements..." required></textarea>
+      </div>
+
+      <div class="note full-width">
+        <strong>Approval Workflow</strong>
+        This request will be automatically routed to your Manager and the relevant resource owner for approval. You will receive notifications at each stage of the process.
+      </div>
+
+      <button type="submit">
+        <i class="fas fa-paper-plane" style="margin-right: 10px;"></i>
+        Submit Access Request
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('requestForm');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const requestDetails = {
+      summary: document.getElementById('summary').value.trim(),
+      description: document.getElementById('description').value.trim(), 
+      reason: document.getElementById('reason').value.trim(),
+      date_needed: document.getElementById('date_needed').value, 
+    };
+
+    const formData = { 
+      requester_name: document.getElementById('requester_name').value.trim(),
+      requester_email: document.getElementById('requester_email').value.trim(),
+      request_type: document.getElementById('request_type').value,
+      request_details: JSON.stringify(requestDetails),
+    };
+    
+    try {
+      const res = await fetch('http://localhost:5501/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData), 
+      });
+    
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('Request Submitted Successfully!');
+        form.reset();
+      } else { 
+        alert('❌ Error: ' + (data.error || 'Unknown error')); 
+      }
+    } catch (error) {
+      alert('❌ Failed to submit request.');
+      console.error(error);
+    }
+  });
+</script>
+</body>
+</html>

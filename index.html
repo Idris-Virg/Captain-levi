@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Access Request Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    :root {
+      --primary-red: #d32f2f;
+      --dark-red: #b71c1c;
+      --light-red: #ff5252;
+      --white: #ffffff;
+      --light-gray: #f8f8f8;
+      --medium-gray: #e8e8e8;
+      --dark-gray: #424242;
+      --text-gray: #555555;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
+      color: var(--text-gray);
+      min-height: 100vh;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    
+    .container {
+      width: 95%;
+      max-width: 1400px;
+      background-color: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 90vh;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, var(--primary-red) 0%, var(--dark-red) 100%);
+      color: var(--white);
+      padding: 40px 50px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+      transform: translate(30%, -30%);
+    }
+    
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -50px;
+      left: -50px;
+      width: 150px;
+      height: 150px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+    }
+    
+    .header-content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+    }
+    
+    .header h1 {
+      font-size: 2.8rem;
+      margin-bottom: 15px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+    
+    .header p {
+      opacity: 0.9;
+      font-size: 1.2rem;
+      line-height: 1.6;
+      max-width: 600px;
+    }
+    
+    .content {
+      padding: 50px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 40px;
+      padding-bottom: 25px;
+      border-bottom: 1px solid var(--medium-gray);
+    }
+    
+    .dropdown {
+      flex: 1;
+      max-width: 400px;
+    }
+    
+    .dropdown label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: var(--dark-gray);
+      font-size: 1.1rem;
+    }
+    
+    .dropdown select {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid var(--medium-gray);
+      border-radius: 10px;
+      background-color: var(--white);
+      font-size: 1.05rem;
+      color: var(--dark-gray);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d32f2f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 18px center;
+      background-size: 16px;
+    }
+    
+    .dropdown select:focus {
+      outline: none;
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.15);
+    }
+    
+    .search-box {
+      flex: 1;
+      max-width: 400px;
+      margin-left: 30px;
+    }
+    
+    .search-box label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: var(--dark-gray);
+      font-size: 1.1rem;
+    }
+    
+    .search-box input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid var(--medium-gray);
+      border-radius: 10px;
+      background-color: var(--white);
+      font-size: 1.05rem;
+      color: var(--dark-gray);
+      transition: all 0.3s ease;
+    }
+    
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary-red);
+      box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.15);
+    }
+    
+    h2 {
+      color: var(--dark-red);
+      margin-bottom: 35px;
+      font-size: 2.2rem;
+      font-weight: 600;
+      position: relative;
+      padding-bottom: 15px;
+    }
+    
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(to right, var(--primary-red), var(--light-red));
+      border-radius: 2px;
+    }
+    
+    .request-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 25px;
+      flex: 1;
+    }
+    
+    .item {
+      display: flex;
+      align-items: flex-start;
+      padding: 25px;
+      background-color: var(--white);
+      border: 1px solid var(--medium-gray);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+      height: 100%;
+    }
+    
+    .item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--primary-red), var(--light-red));
+      transform: scaleY(0);
+      transition: transform 0.4s ease;
+    }
+    
+    .item:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      border-color: var(--primary-red);
+    }
+    
+    .item:hover::before {
+      transform: scaleY(1);
+    }
+    
+    .item i {
+      font-size: 2.2rem;
+      color: var(--primary-red);
+      margin-right: 20px;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+      background: rgba(211, 47, 47, 0.1);
+      padding: 15px;
+      border-radius: 10px;
+    }
+    
+    .item:hover i {
+      transform: scale(1.1);
+      background: rgba(211, 47, 47, 0.15);
+    }
+    
+    .item div {
+      flex: 1;
+    }
+    
+    .item strong {
+      display: block;
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+      color: var(--dark-gray);
+      line-height: 1.3;
+    }
+    
+    .item small {
+      color: var(--text-gray);
+      opacity: 0.9;
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 25px;
+      border-top: 1px solid var(--medium-gray);
+      color: var(--text-gray);
+      font-size: 1rem;
+      background-color: var(--light-gray);
+    }
+    
+    .footer p {
+      margin: 5px 0;
+    }
+    
+    /* Status indicator */
+    .status {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-left: 8px;
+    }
+    
+    .status.active {
+      background-color: #4caf50;
+    }
+    
+    .status.inactive {
+      background-color: #f44336;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+      .container {
+        width: 98%;
+      }
+      
+      .request-list {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      }
+    }
+    
+    @media (max-width: 992px) {
+      .controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .dropdown, .search-box {
+        max-width: 100%;
+        width: 100%;
+        margin-bottom: 20px;
+        margin-left: 0;
+      }
+      
+      .header h1 {
+        font-size: 2.4rem;
+      }
+      
+      .content {
+        padding: 40px 30px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 20px 10px;
+      }
+      
+      .header {
+        padding: 30px;
+      }
+      
+      .header h1 {
+        font-size: 2rem;
+      }
+      
+      .content {
+        padding: 30px 20px;
+      }
+      
+      h2 {
+        font-size: 1.8rem;
+      }
+      
+      .request-list {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .header {
+        padding: 25px 20px;
+      }
+      
+      .header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .header p {
+        font-size: 1.1rem;
+      }
+      
+      .content {
+        padding: 25px 15px;
+      }
+      
+      .item {
+        padding: 20px;
+      }
+      
+      .item i {
+        font-size: 1.8rem;
+        margin-right: 15px;
+        padding: 12px;
+      }
+      
+      .item strong {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-content">
+        <h1>Access Request Portal</h1>
+      </div>
+    </div>
+    
+    <div class="content">
+      <div class="controls">
+        <div class="dropdown">
+          <label for="category">Request Category</label>
+          <select id="category"> 
+            <option value="access">System Access</option>
+            <option value="api">API Keys</option>
+            <option value="recovery">Account Recovery</option>
+            <option value="deprovision">Deprovisioning</option>
+          </select>
+        </div>
+        
+        <div class="search-box">
+          <label for="search">Search Requests</label>
+          <input type="text" id="search" placeholder="Type to search...">
+        </div>
+      </div>
+      
+      <h2>What can we help you with?</h2> 
+
+      <div class="request-list">
+        <a class="item" href="Personal GCP.html">
+          <i class="fas fa-cloud"></i>
+          <div>
+            <strong>Personal GCP Project</strong><br>
+            <small>Request access to Google Cloud Platform for personal projects and testing</small>
+          </div>
+        </a>
+
+        <div class="item">
+          <i class="fas fa-key"></i>
+          <div>
+            <strong>Generative AI API Keys</strong><br>
+            <small>Request a new Generative AI API Key for development and integration</small>
+          </div>
+        </div>
+
+        <a class="item" href="application-access.html">
+          <i class="fas fa-robot"></i> 
+          <div>
+            <strong>Application Database Access</strong><br>
+            <small>For an existing application that needs access to a database. NOT for individual user access.</small>
+          </div>
+        </a>
+
+        <div class="item">
+          <i class="fas fa-gem"></i>
+          <div>
+            <strong>Burp Suite Access</strong><br>
+            <small>Request access to Burp Suite for security testing and vulnerability assessment</small>
+          </div>
+        </div>
+
+        <a class="item" href="non-prod-access.html">
+          <i class="fas fa-database"></i>
+          <div>
+            <strong>Non-Prod Systems Access (GCP, DB, etc..)</strong><br>
+            <small>Access to non-production environments for development and testing</small>
+          </div>
+        </a>
+
+        <a class="item" href="Production-access.html">
+          <i class="fas fa-server"></i>
+          <div>
+            <strong>Production Systems Access</strong><br>
+            <small>Request elevated access to production systems and infrastructure</small>
+          </div>
+        </a>
+
+        <div class="item">
+          <i class="fas fa-user-slash"></i>
+          <div>
+            <strong>Deprovisioning</strong><br>
+            <small>Remove unneeded access or resources for users or applications</small>
+          </div>
+        </div>
+
+        <a class="item" href="Password-Rcov.html">
+          <i class="fas fa-key"></i>
+          <div>
+            <strong>Password Recovery and Account Reauthorization</strong><br>
+            <small>Reset passwords, replace ssh key, and recover account access</small>
+          </div>
+        </a>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>© Access Request Portal | Summit Bank Access Management System</p>
+      <p>Need assistance? Contact IT Support: techsupport@summitbankng.com | Ext: 4357</p>
+    </div>
+  </div>
+
+  <script>
+    // Simple search functionality
+    document.getElementById('search').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const items = document.querySelectorAll('.item');
+      
+      items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+    
+    // Add subtle animation to items on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      const items = document.querySelectorAll('.item');
+      items.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+          item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+          item.style.opacity = '1';
+          item.style.transform = 'translateY(0)';
+        }, 100 * index);
+      });
+    });
+  </script>
+</body>
+</html>
