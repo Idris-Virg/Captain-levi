@@ -15,6 +15,7 @@ async function initDb() {
       requester_name VARCHAR(100),
       requester_email VARCHAR(100),
       request_type VARCHAR(50),
+      request_details varchar(250),
       summary TEXT,
       current_stage VARCHAR(50) DEFAULT 'IT Help Desk',
       status VARCHAR(50) DEFAULT 'Pending',

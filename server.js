@@ -8,8 +8,8 @@ const app = express();
 app.use(cors()); 
 app.use(express.json()); 
 
-app.use('/api/requests', requestRoutes);
-app.use('/api/approvals', approvalRoutes);
+app.use('/api', requestRoutes);
+app.use('/api', approvalRoutes);
 
 app.get('/', (req, res) => { 
   res.send(`

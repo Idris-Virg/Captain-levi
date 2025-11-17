@@ -1,11 +1,12 @@
 const pool = require('../db');
 
 const nextStageMap = {
-  'IT Help Desk': 'Line Manager',
-  'Line Manager': 'Head of Software Engineering',
-  'Head of Software Engineering': 'Head of IT',
+  'User': 'Admin',
+  'Admin': 'Super_Admin',
+  'Super_Admin': 'Head of IT',
   'Head of IT': 'Completed',
 };
+
 
 async function getAllApprovals() {
   const result = await pool.query(
@@ -46,7 +47,7 @@ async function createApproval(data) {
 
     const insertApproval =`
       INSERT INTO approvals  
-        (request_id, approver_role, approver_name, approver_email, decision, comments, decided_at)
+        (request_id, approver_role, approver_name, approver_email, decision, cmoments, decided_at)
       VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP) 
       RETURNING *; 
     `;
