@@ -23,7 +23,7 @@ exports.getRequests = async (req, res) => {
     console.error('Error fetching requests:', err);
     res.status(500).json({ error: 'Failed to fetch requests' });
   }
-};
+};  
 
 exports.getRequestById = async (req, res) => {
   try {
