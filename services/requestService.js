@@ -8,7 +8,7 @@ exports.createRequest = async ({ requester_name, requester_email, request_type, 
     const insertReqText = `
       INSERT INTO access_requests
         (requester_name, requester_email, request_type, request_details, current_stage, status)
-      VALUES ($1, $2, $3, $4, 'IT Help Desk', 'Pending')
+      VALUES ($1, $2, $3, $4, 'User', 'Pending')
       RETURNING *;
     `;
     const { rows } = await client.query(insertReqText, [
@@ -17,10 +17,9 @@ exports.createRequest = async ({ requester_name, requester_email, request_type, 
     const newRequest = rows[0];
 
     const approvalStages = [ 
-      ['IT Help Desk', null, null],
-      ['Line Manager', null, null], 
-      ['Head of Software Engineering', null, null], 
-      ['Head of IT', null, null],
+      ['User', null, null],
+      ['Admin', null, null], 
+      ['Super_Admin', null, null], 
     ]; 
     
     for (const [role, name, email] of approvalStages) { 

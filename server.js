@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json()); 
 
 app.use('/api', requestRoutes);
-app.use('/api', approvalRoutes);
+app.use('/api/approvals', approvalRoutes);
 
 app.get('/', (req, res) => { 
   res.send(`

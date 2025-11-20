@@ -39,3 +39,19 @@ exports.getRequestById = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch request' });
   }
 };
+
+exports.linkApprovalToAccessRequest = async (req, res) => {
+  try {
+    const { approval_request_id, access_request_id } = req.body;
+    
+    if (!approval_request_id || !access_request_id) {
+      return res.status(400).json({ error: 'approval_request_id and access_request_id are required' });
+    }
+
+    const result = await approvalService.linkApprovalToAccessRequest(approval_request_id, access_request_id);
+    res.json(result);
+  } catch (err) {
+    console.error('Error linking requests:', err);
+    res.status(400).json({ error: err.message || 'Failed to link requests' });
+  }
+};
