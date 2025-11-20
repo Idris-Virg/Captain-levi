@@ -109,3 +109,55 @@ exports.syncAccessRequests = async (req, res) => {
     res.status(500).json({ error: 'Failed to sync access requests' });
   }
 };
+
+// Get access request workflow (for old system)
+exports.getAccessRequestWorkflow = async (req, res) => {
+  try {
+    const requestId = parseInt(req.params.request_id, 10);
+    if (isNaN(requestId)) {
+      return res.status(400).json({ error: 'Invalid request ID' });
+    }
+    
+    const workflow = await approvalService.getAccessRequestWorkflow(requestId);
+    res.json(workflow);
+  } catch (err) {
+    console.error('Error fetching access request workflow:', err);
+    res.status(500).json({ error: err.message || 'Failed to fetch workflow' });
+  }
+};
+
+// Update approval status for access requests (old system)
+exports.updateAccessRequestApproval = async (req, res) => {
+  try {
+    const { request_id, role, status, comment, approver_name, approver_email } = req.body;
+    
+    if (!request_id || !role || !status || !approver_email) {
+      return res.status(400).json({ error: 'Request ID, role, status, and approver email are required' });
+    }
+
+    const result = await approvalService.updateAccessRequestApproval({
+      request_id,
+      role,
+      status,
+      comment,
+      approver_name,
+      approver_email
+    });
+    
+    res.json({ message: 'Approval status updated', result });
+  } catch (err) {
+    console.error('Error updating access request approval:', err);
+    res.status(400).json({ error: err.message || 'Failed to update approval status' });
+  }
+};
+
+// Get pending access requests
+exports.getPendingAccessRequests = async (req, res) => {
+  try {
+    const requests = await approvalService.getPendingAccessRequests();
+    res.json(requests);
+  } catch (err) {
+    console.error('Error fetching pending access requests:', err);
+    res.status(500).json({ error: 'Failed to fetch pending requests' });
+  }
+};

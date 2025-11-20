@@ -3,576 +3,909 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Summit Bank | Access Management Approval Portal</title>
-
-  <!-- GOOGLE FONTS -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
-
+  <title>Summit Bank | Approval Workflow Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
   <style>
-    body {
+    * {
       margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      padding: 20px;
       color: #333;
     }
 
-    /* Top Navigation */
     .navbar {
       background: linear-gradient(135deg, #8B0000 0%, #B22222 100%);
       color: white;
-      padding: 18px 30px;
+      padding: 20px 30px;
+      font-size: 22px;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(139, 0, 0, 0.3);
+      margin-bottom: 30px;
+      border-radius: 10px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 30px;
+      height: calc(100vh - 150px);
+    }
+
+    /* Request List Panel */
+    .requests-panel {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      overflow-y: auto;
+    }
+
+    .panel-header {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .panel-header h2 {
+      color: #8B0000;
       font-size: 20px;
       font-weight: 600;
-      box-shadow: 0 3px 15px rgba(139, 0, 0, 0.3);
-      position: relative;
-      overflow: hidden;
+      margin-bottom: 10px;
     }
 
-    .navbar::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 150px;
-      height: 100%;
-      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 100%);
+    .filter-tabs {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
     }
 
-    /* Main Layout */
-    .container {
-      max-width: 1000px;
-      margin: 40px auto;
-      padding: 20px;
+    .filter-tab {
+      padding: 8px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
     }
 
-    .title {
-      font-size: 28px;
+    .filter-tab.active {
+      background: #8B0000;
+      color: white;
+      border-color: #8B0000;
+    }
+
+    .request-item {
+      padding: 18px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: white;
+    }
+
+    .request-item:hover {
+      border-color: #8B0000;
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(139, 0, 0, 0.15);
+    }
+
+    .request-item.active {
+      border-color: #8B0000;
+      background: #fff5f5;
+    }
+
+    .request-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 10px;
+    }
+
+    .request-id {
       font-weight: 600;
       color: #8B0000;
-      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .request-status {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background: #FFF3CD;
+      color: #856404;
+    }
+
+    .status-in-progress {
+      background: #D1ECF1;
+      color: #0c5460;
+    }
+
+    .status-approved {
+      background: #D4EDDA;
+      color: #155724;
+    }
+
+    .status-rejected {
+      background: #F8D7DA;
+      color: #721C24;
+    }
+
+    .request-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 15px;
+    }
+
+    .request-meta {
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+    }
+
+    .request-meta span {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .current-stage {
+      margin-top: 10px;
+      padding: 8px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .current-stage strong {
+      color: #8B0000;
+    }
+
+    /* Approval Panel */
+    .approval-panel {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    .empty-state {
       text-align: center;
-      position: relative;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state i {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+
+    .request-details {
+      margin-bottom: 30px;
+      padding: 25px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border-left: 4px solid #8B0000;
+    }
+
+    .request-details h3 {
+      color: #8B0000;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .detail-row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      margin-bottom: 15px;
       padding-bottom: 15px;
+      border-bottom: 1px solid #e0e0e0;
     }
 
-    .title::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100px;
-      height: 3px;
-      background: linear-gradient(90deg, transparent 0%, #8B0000 50%, transparent 100%);
+    .detail-row:last-child {
+      border-bottom: none;
     }
 
-    /* Step Progress Bar */
+    .detail-label {
+      font-weight: 600;
+      color: #666;
+    }
+
+    .detail-value {
+      color: #333;
+    }
+
+    .request-details-text {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 10px;
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    /* Progress Steps */
+    .steps-container {
+      margin: 30px 0;
+    }
+
+    .steps-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
     .steps {
       display: flex;
       justify-content: space-between;
-      margin: 40px 0;
       position: relative;
+      margin-bottom: 40px;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #e0e0e0;
+      z-index: 0;
     }
 
     .step {
       text-align: center;
-      width: 33%;
       position: relative;
       z-index: 1;
+      flex: 1;
     }
 
-    .step .circle {
+    .step-circle {
       width: 40px;
       height: 40px;
-      background: #e0e0e0;
       border-radius: 50%;
-      margin: 0 auto;
-      line-height: 40px;
-      font-weight: 600;
+      background: #e0e0e0;
       color: #666;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-weight: 600;
+      transition: all 0.3s;
+      position: relative;
     }
 
-    .step.active .circle {
+    .step.active .step-circle {
       background: #8B0000;
       color: white;
-      box-shadow: 0 4px 10px rgba(139, 0, 0, 0.3);
+      box-shadow: 0 0 0 4px rgba(139, 0, 0, 0.2);
     }
 
-    .step.completed .circle {
-      background: #8B0000;
+    .step.completed .step-circle {
+      background: #28a745;
       color: white;
-      box-shadow: 0 4px 10px rgba(139, 0, 0, 0.3);
     }
 
-    .step.completed .circle::after {
-      content: "✓";
-      font-weight: bold;
+    .step.completed .step-circle::after {
+      content: '✓';
+      font-size: 20px;
     }
 
-    .step .label {
-      margin-top: 8px;
+    .step.rejected .step-circle {
+      background: #dc3545;
+      color: white;
+    }
+
+    .step-label {
+      font-size: 13px;
       font-weight: 500;
-      color: #555;
+      color: #666;
     }
 
-    .step.active .label {
+    .step.active .step-label {
       color: #8B0000;
       font-weight: 600;
     }
 
-    /* Divider Lines */
-    .step:before, .step:after {
-      content: "";
+    .step-line {
       position: absolute;
       top: 20px;
+      left: 50%;
+      width: 100%;
       height: 3px;
       background: #e0e0e0;
-      width: 50%;
       z-index: -1;
-      transition: all 0.3s ease;
     }
 
-    .step:before {
-      left: -50%;
-    }
-
-    .step:after {
-      right: -50%;
-    }
-
-    .step:first-child:before {
-      display: none;
-    }
-
-    .step:last-child:after {
-      display: none;
-    }
-
-    .step.completed:before, .step.completed:after {
-      background: #8B0000;
-    }
-
-    .step.active:before {
+    .step.completed .step-line,
+    .step.active .step-line {
       background: #8B0000;
     }
 
     /* Approval Cards */
-    .card {
-      background: white;
-      padding: 25px;
+    .approval-cards {
+      display: grid;
+      gap: 20px;
+    }
+
+    .approval-card {
+      border: 2px solid #e0e0e0;
       border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-      margin-bottom: 25px;
-      border-left: 4px solid #8B0000;
-      transition: all 0.3s ease;
+      padding: 25px;
+      background: white;
+      transition: all 0.3s;
     }
 
-    .card:hover {
-      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-      transform: translateY(-2px);
+    .approval-card.pending {
+      border-color: #FFC107;
+      background: #FFFBF0;
     }
 
-    .card h3 {
-      margin-top: 0;
-      color: #8B0000;
+    .approval-card.approved {
+      border-color: #28a745;
+      background: #F0F9F4;
+    }
+
+    .approval-card.rejected {
+      border-color: #dc3545;
+      background: #FFF5F5;
+    }
+
+    .approval-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .approval-card-title {
+      font-size: 18px;
       font-weight: 600;
-      border-bottom: 1px solid #f0f0f0;
-      padding-bottom: 10px;
+      color: #333;
     }
 
-    .status {
-      padding: 8px 15px;
+    .approval-status-badge {
+      padding: 6px 14px;
       border-radius: 20px;
-      display: inline-block;
-      margin-bottom: 15px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
-      letter-spacing: 0.5px;
     }
 
-    .pending {
-      background: #FFF3CD;
-      color: #856404;
-      border: 1px solid #FFEAA7;
-    }
-
-    .approved {
-      background: #D4EDDA;
-      color: #155724;
-      border: 1px solid #C3E6CB;
-    }
-
-    .rejected {
-      background: #F8D7DA;
-      color: #721C24;
-      border: 1px solid #F5C6CB;
-    }
-
-    /* Buttons */
-    .btn {
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
+    .approval-info {
+      margin-bottom: 20px;
       font-size: 14px;
-      border: none;
-      margin-right: 10px;
-      transition: all 0.3s ease;
-      font-weight: 500;
-      letter-spacing: 0.5px;
+      color: #666;
     }
 
-    .approve-btn {
-      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-      color: white;
-      box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3);
+    .approval-info strong {
+      color: #333;
     }
 
-    .approve-btn:hover {
-      background: linear-gradient(135deg, #218838 0%, #1e9e8a 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 5px 12px rgba(40, 167, 69, 0.4);
+    .comment-section {
+      margin-bottom: 20px;
     }
 
-    .reject-btn {
-      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-      color: white;
-      box-shadow: 0 3px 8px rgba(220, 53, 69, 0.3);
+    .comment-section label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
     }
 
-    .reject-btn:hover {
-      background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 5px 12px rgba(220, 53, 69, 0.4);
-    }
-
-    .comment-box {
+    .comment-textarea {
       width: 100%;
       padding: 12px;
-      margin-top: 10px;
+      border: 2px solid #e0e0e0;
       border-radius: 6px;
-      border: 1px solid #e0e0e0;
       font-family: inherit;
-      resize: none;
-      transition: all 0.3s ease;
+      resize: vertical;
+      min-height: 100px;
+      transition: all 0.3s;
     }
 
-    .comment-box:focus {
+    .comment-textarea:focus {
       outline: none;
       border-color: #8B0000;
-      box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.1);
+      box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1);
     }
 
-    /* Footer */
-    .footer {
+    .comment-textarea:disabled {
+      background: #f5f5f5;
+      cursor: not-allowed;
+    }
+
+    .approval-actions {
+      display: flex;
+      gap: 15px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-approve {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      color: white;
+    }
+
+    .btn-approve:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-reject {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+      color: white;
+    }
+
+    .btn-reject:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+    }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .notification.success {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+
+    .notification.error {
+      background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .requests-panel {
+        max-height: 400px;
+      }
+    }
+
+    .loading {
       text-align: center;
-      margin-top: 40px;
-      padding: 20px;
+      padding: 40px;
       color: #666;
-      font-size: 14px;
-      border-top: 1px solid #e0e0e0;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #8B0000;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
-
 <body>
+  <div class="navbar">
+    <i class="fas fa-shield-alt" style="margin-right: 10px;"></i>
+    Summit Bank — Approval Workflow Portal
+  </div>
 
-  <!-- NAVBAR -->
-  <div class="navbar">Summit Bank — Access Management Approval Portal</div>
-
-  <!-- MAIN CONTAINER -->
   <div class="container">
+    <div class="main-layout">
+      <!-- Request List Panel -->
+      <div class="requests-panel">
+        <div class="panel-header">
+          <h2><i class="fas fa-list" style="margin-right: 8px;"></i>Requests</h2>
+          <div class="filter-tabs">
+            <div class="filter-tab active" data-filter="all">All</div>
+            <div class="filter-tab" data-filter="pending">Pending</div>
+            <div class="filter-tab" data-filter="in-progress">In Progress</div>
+          </div>
+        </div>
+        <div id="requestsList">
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Loading requests...</p>
+          </div>
+        </div>
+      </div>
 
-    <div class="title">Application Database Access — Approval Workflow</div>
-
-    <!-- STEP PROGRESS -->
-    <div class="steps" id="progressSteps"></div>
-
-    <!-- APPROVAL CARDS -->
-    <div id="approvalCards"></div>
-
-    <div class="footer">
-      Summit Bank &copy; 2025 | Secure Access Management System
+      <!-- Approval Panel -->
+      <div class="approval-panel">
+        <div id="approvalContent">
+          <div class="empty-state">
+            <i class="fas fa-clipboard-list"></i>
+            <h3>Select a request to review</h3>
+            <p>Choose a request from the list to view details and make approval decisions</p>
+          </div>
+        </div>
+      </div>
     </div>
-
   </div>
 
   <script>
-  let currentRequestId = 1; // You can make this dynamic based on URL parameters or user selection
-  let approvalStages = [];
+    const API_BASE = 'http://localhost:5501/api';
+    let currentRequestId = null;
+    let allRequests = [];
+    let currentFilter = 'all';
 
-  // Load approval workflow from backend
-  async function loadApprovalWorkflow(requestId = currentRequestId) {
-    try {
-      const response = await fetch(`http://localhost:5501/api/approvals/workflow/${requestId}`);
-      if (response.ok) {
-        const workflow = await response.json();
-        approvalStages = workflow;
-        renderSteps();
-        renderCards();
-      } else {
-        console.error('Failed to load workflow');
-        // Fallback to default stages if backend fails
-        approvalStages = [
-          { role: "User", status: "Pending", comment: "" },
-          { role: "Admin", status: "Pending", comment: "" },
-          { role: "Super_Admin", status: "Pending", comment: "" }
-        ];
-        renderSteps();
-        renderCards();
+    // Load pending requests
+    async function loadRequests() {
+      try {
+        const response = await fetch(`${API_BASE}/approvals/pending-access-requests`);
+        if (response.ok) {
+          allRequests = await response.json();
+          renderRequests();
+        } else {
+          showNotification('Failed to load requests', 'error');
+        }
+      } catch (error) {
+        console.error('Error loading requests:', error);
+        showNotification('Error loading requests. Please check your connection.', 'error');
       }
-    } catch (error) {
-      console.error('Error loading approval workflow:', error);
-      // Fallback to default stages
-      approvalStages = [
-        { role: "User", status: "Pending", comment: "" },
-        { role: "Admin", status: "Pending", comment: "" },
-        { role: "Super_Admin", status: "Pending", comment: "" }
-      ];
-      renderSteps();
-      renderCards();
-    }
-  }
-
-  function renderSteps() {
-    const stepsContainer = document.getElementById("progressSteps");
-    stepsContainer.innerHTML = "";
-
-    // Find the first pending stage, or if all are completed, show the last one as active
-    let currentIndex = approvalStages.findIndex(stage => stage.status === "Pending");
-    if (currentIndex === -1 && approvalStages.length > 0) {
-      // All stages are completed, show the last one as active
-      currentIndex = approvalStages.length - 1;
     }
 
-    approvalStages.forEach((stage, index) => {
-      let cls = "";
-      if (stage.status === "Approved") {
-        cls = "completed";
-      } else if (stage.status === "Rejected") {
-        cls = "rejected";
-      } else if (index === currentIndex) {
-        cls = "active";
+    // Render request list
+    function renderRequests() {
+      const container = document.getElementById('requestsList');
+      
+      let filteredRequests = allRequests;
+      if (currentFilter === 'pending') {
+        filteredRequests = allRequests.filter(r => r.status === 'Pending');
+      } else if (currentFilter === 'in-progress') {
+        filteredRequests = allRequests.filter(r => r.status === 'In Progress');
       }
 
-      stepsContainer.innerHTML += `
-        <div class="step ${cls}">
-          <div class="circle">${index + 1}</div>
-          <div class="label">${stage.role.replace('_', ' ')}</div>
+      if (filteredRequests.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No requests found</p></div>';
+        return;
+      }
+
+      container.innerHTML = filteredRequests.map(request => {
+        const statusClass = request.status.toLowerCase().replace(' ', '-');
+        const progress = request.total_approvals > 0 
+          ? `${request.approved_count || 0}/${request.total_approvals}`
+          : '0/3';
+        
+        return `
+          <div class="request-item ${currentRequestId === request.id ? 'active' : ''}" 
+               onclick="selectRequest(${request.id})">
+            <div class="request-item-header">
+              <div class="request-id">#${request.id}</div>
+              <div class="request-status status-${statusClass}">${request.status}</div>
+            </div>
+            <div class="request-title">${request.request_type || 'Access Request'}</div>
+            <div class="request-meta">
+              <span><i class="fas fa-user"></i> ${request.requester_name}</span>
+              <span><i class="fas fa-envelope"></i> ${request.requester_email}</span>
+              <span><i class="fas fa-calendar"></i> ${new Date(request.created_at).toLocaleDateString()}</span>
+            </div>
+            <div class="current-stage">
+              <strong>Current Stage:</strong> ${request.current_stage || 'Pending'}
+            </div>
+            <div class="current-stage" style="margin-top: 8px;">
+              <strong>Progress:</strong> ${progress} approvals
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Select a request
+    async function selectRequest(requestId) {
+      currentRequestId = requestId;
+      renderRequests();
+      
+      try {
+        const response = await fetch(`${API_BASE}/approvals/access-request-workflow/${requestId}`);
+        if (response.ok) {
+          const data = await response.json();
+          renderApprovalPanel(data);
+        } else {
+          const error = await response.json();
+          showNotification(error.error || 'Failed to load request details', 'error');
+        }
+      } catch (error) {
+        console.error('Error loading request details:', error);
+        showNotification('Error loading request details', 'error');
+      }
+    }
+
+    // Render approval panel
+    function renderApprovalPanel(data) {
+      const { request, workflow } = data;
+      const container = document.getElementById('approvalContent');
+      
+      // Parse request details
+      let requestDetails = {};
+      try {
+        if (typeof request.request_details === 'string') {
+          requestDetails = JSON.parse(request.request_details);
+        } else {
+          requestDetails = request.request_details || {};
+        }
+      } catch (e) {
+        requestDetails = { raw: request.request_details };
+      }
+
+      // Determine current active stage
+      const pendingStage = workflow.find(s => s.status === 'Pending');
+      const currentStageIndex = workflow.findIndex(s => s.status === 'Pending');
+
+      // Render steps
+      const stepsHTML = workflow.map((stage, index) => {
+        let stepClass = '';
+        if (stage.status === 'Approved') stepClass = 'completed';
+        else if (stage.status === 'Rejected') stepClass = 'rejected';
+        else if (index === currentStageIndex) stepClass = 'active';
+
+        return `
+          <div class="step ${stepClass}">
+            <div class="step-circle">${index + 1}</div>
+            <div class="step-label">${stage.role.replace('_', ' ')}</div>
+          </div>
+        `;
+      }).join('');
+
+      // Render approval cards
+      const cardsHTML = workflow.map((stage, index) => {
+        const isPending = stage.status === 'Pending';
+        const isCurrentStage = index === currentStageIndex;
+        const canApprove = isPending && isCurrentStage;
+        
+        let cardClass = 'pending';
+        if (stage.status === 'Approved') cardClass = 'approved';
+        else if (stage.status === 'Rejected') cardClass = 'rejected';
+
+        return `
+          <div class="approval-card ${cardClass}">
+            <div class="approval-card-header">
+              <div class="approval-card-title">${stage.role.replace('_', ' ')} Approval</div>
+              <div class="approval-status-badge status-${stage.status.toLowerCase()}">
+                ${stage.status}
+              </div>
+            </div>
+            
+            ${stage.approver_name ? `
+              <div class="approval-info">
+                <strong>Approver:</strong> ${stage.approver_name} (${stage.approver_email || 'N/A'})
+              </div>
+            ` : ''}
+            
+            ${stage.decided_at ? `
+              <div class="approval-info">
+                <strong>Decided:</strong> ${new Date(stage.decided_at).toLocaleString()}
+              </div>
+            ` : ''}
+
+            <div class="comment-section">
+              <label>Comments:</label>
+              <textarea 
+                class="comment-textarea" 
+                id="comment_${index}" 
+                ${!canApprove ? 'disabled' : ''}
+                placeholder="${canApprove ? 'Add your comments...' : 'No comments'}"
+              >${stage.comment || ''}</textarea>
+            </div>
+
+            ${canApprove ? `
+              <div class="approval-actions">
+                <button class="btn btn-approve" onclick="updateApproval(${index}, 'Approved')">
+                  <i class="fas fa-check"></i> Approve
+                </button>
+                <button class="btn btn-reject" onclick="updateApproval(${index}, 'Rejected')">
+                  <i class="fas fa-times"></i> Reject
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="request-details">
+          <h3><i class="fas fa-file-alt" style="margin-right: 10px;"></i>Request Details</h3>
+          <div class="detail-row">
+            <div class="detail-label">Request ID:</div>
+            <div class="detail-value">#${request.id}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Requester:</div>
+            <div class="detail-value">${request.requester_name} (${request.requester_email})</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Request Type:</div>
+            <div class="detail-value">${request.request_type || 'N/A'}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Current Stage:</div>
+            <div class="detail-value">${request.current_stage || 'Pending'}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Status:</div>
+            <div class="detail-value">${request.status}</div>
+          </div>
+          ${request.summary ? `
+            <div class="detail-row">
+              <div class="detail-label">Summary:</div>
+              <div class="detail-value">${request.summary}</div>
+            </div>
+          ` : ''}
+          ${request.request_details ? `
+            <div class="detail-row">
+              <div class="detail-label">Details:</div>
+              <div class="detail-value">
+                <div class="request-details-text">${JSON.stringify(requestDetails, null, 2)}</div>
+              </div>
+            </div>
+          ` : ''}
+          <div class="detail-row">
+            <div class="detail-label">Created:</div>
+            <div class="detail-value">${new Date(request.created_at).toLocaleString()}</div>
+          </div>
+        </div>
+
+        <div class="steps-container">
+          <div class="steps-title">Approval Workflow</div>
+          <div class="steps">
+            ${stepsHTML}
+          </div>
+        </div>
+
+        <div class="approval-cards">
+          ${cardsHTML}
         </div>
       `;
-    });
-  }
-
-  function renderCards() {
-    const container = document.getElementById("approvalCards");
-    container.innerHTML = "";
-
-    approvalStages.forEach((stage, index) => {
-      const isDisabled = stage.status !== "Pending";
-      const displayStatus = stage.status === "Pending" ? "Pending" : 
-                           stage.status === "Approved" ? "Approved" : "Rejected";
-      
-      container.innerHTML += `
-        <div class="card">
-          <h3>${stage.role.replace('_', ' ')} Approval</h3>
-
-          <div class="status ${displayStatus.toLowerCase()}">
-            Status: ${displayStatus}
-          </div>
-
-          <textarea 
-            class="comment-box" 
-            id="comment_${index}" 
-            placeholder="Add comment..."
-            ${isDisabled ? "readonly" : ""}
-          >${stage.comment || ''}</textarea>
-
-          <div>
-            <button 
-              class="btn approve-btn" 
-              onclick="updateStatus(${index}, 'Approved')"
-              ${isDisabled ? "disabled" : ""}
-              style="${isDisabled ? 'opacity: 0.6; cursor: not-allowed;' : ''}"
-            >
-              Approve
-            </button>
-            <button 
-              class="btn reject-btn" 
-              onclick="updateStatus(${index}, 'Rejected')"
-              ${isDisabled ? "disabled" : ""}
-              style="${isDisabled ? 'opacity: 0.6; cursor: not-allowed;' : ''}"
-            >
-              Reject
-            </button>
-          </div>
-        </div>
-      `;
-    });
-  }
-
-  async function updateStatus(index, status) {
-    const comment = document.getElementById(`comment_${index}`).value;
-    const role = approvalStages[index].role;
-    
-    try {
-      // Show loading state
-      const approveBtn = document.querySelector(`button[onclick="updateStatus(${index}, 'Approved')"]`);
-      const rejectBtn = document.querySelector(`button[onclick="updateStatus(${index}, 'Rejected')"]`);
-      
-      if (approveBtn && rejectBtn) {
-        approveBtn.disabled = true;
-        rejectBtn.disabled = true;
-        approveBtn.innerHTML = 'Processing...';
-        rejectBtn.innerHTML = 'Processing...';
-      }
-
-      // Send to backend
-      const response = await fetch("http://localhost:5501/api/approvals/update-status", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          request_id: currentRequestId,
-          role: role,
-          status: status,
-          comment: comment,
-          approver_name: "Current User", // Replace with actual user from authentication
-          approver_email: "user@summitbank.com" // Replace with actual user email
-        })
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        approvalStages = result.result;
-        
-        // Show success message
-        showNotification(`Successfully ${status.toLowerCase()} the request!`, 'success');
-        
-        renderSteps();
-        renderCards();
-      } else {
-        const errorData = await response.json();
-        showNotification(`Error: ${errorData.error}`, 'error');
-        
-        // Re-enable buttons on error
-        if (approveBtn && rejectBtn) {
-          approveBtn.disabled = false;
-          rejectBtn.disabled = false;
-          approveBtn.innerHTML = 'Approve';
-          rejectBtn.innerHTML = 'Reject';
-        }
-      }
-    } catch (error) {
-      console.error('Error updating approval status:', error);
-      showNotification('Failed to update approval status. Please try again.', 'error');
-      
-      // Re-enable buttons on error
-      const approveBtn = document.querySelector(`button[onclick="updateStatus(${index}, 'Approved')"]`);
-      const rejectBtn = document.querySelector(`button[onclick="updateStatus(${index}, 'Rejected')"]`);
-      if (approveBtn && rejectBtn) {
-        approveBtn.disabled = false;
-        rejectBtn.disabled = false;
-        approveBtn.innerHTML = 'Approve';
-        rejectBtn.innerHTML = 'Reject';
-      }
-    }
-  }
-
-  // Notification function
-  function showNotification(message, type) {
-    // Remove existing notifications
-    const existingNotification = document.querySelector('.notification');
-    if (existingNotification) {
-      existingNotification.remove();
     }
 
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-      <div style="
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 6px;
-        color: white;
-        font-weight: 500;
-        z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        ${type === 'success' ? 'background: linear-gradient(135deg, #28a745 0%, #20c997 100%);' : ''}
-        ${type === 'error' ? 'background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);' : ''}
-      ">
-        ${message}
-      </div>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-      notification.remove();
-    }, 3000);
-  }
+    // Update approval status
+    async function updateApproval(stageIndex, status) {
+      if (!currentRequestId) return;
 
-  // Request selector (optional - for multiple requests)
-  function addRequestSelector() {
-    const titleElement = document.querySelector('.title');
-    const selectorHTML = `
-      <div style="text-align: center; margin-bottom: 20px;">
-        <label for="requestSelect" style="font-weight: 500; margin-right: 10px;">Select Request:</label>
-        <select id="requestSelect" onchange="changeRequest(this.value)" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #e0e0e0;">
-          <option value="1">Request #1 - Application Database Access</option>
-          <option value="2">Request #2 - Customer Data Access</option>
-          <option value="3">Request #3 - Transaction Logs Access</option>
-        </select>
-      </div>
-    `;
-    titleElement.insertAdjacentHTML('afterend', selectorHTML);
-  }
+      const comment = document.getElementById(`comment_${stageIndex}`).value;
+      const workflow = await fetch(`${API_BASE}/approvals/access-request-workflow/${currentRequestId}`)
+        .then(r => r.json())
+        .then(d => d.workflow);
 
-  async function changeRequest(requestId) {
-    currentRequestId = parseInt(requestId);
-    await loadApprovalWorkflow(currentRequestId);
-  }
-
-  // Initialize on page load
-  document.addEventListener('DOMContentLoaded', function() {
-    // Add request selector (optional)
-    addRequestSelector();
-    
-    // Load initial workflow
-    loadApprovalWorkflow();
-    
-    // Add some CSS for the notification
-    const style = document.createElement('style');
-    style.textContent = `
-      .notification {
-        animation: slideIn 0.3s ease-out;
-      }
+      const stage = workflow[stageIndex];
       
-      @keyframes slideIn {
-        from {
-          transform: translateX(100%);
-          opacity: 0;
+      // Get approver info (in production, this would come from authentication)
+      const approverName = prompt('Enter your name:') || 'Approver';
+      const approverEmail = prompt('Enter your email:') || 'approver@summitbank.com';
+
+      if (!approverEmail) {
+        showNotification('Approver email is required', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/approvals/update-access-request-approval`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            request_id: currentRequestId,
+            role: stage.role,
+            status: status,
+            comment: comment,
+            approver_name: approverName,
+            approver_email: approverEmail
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          showNotification(`Request ${status.toLowerCase()} successfully!`, 'success');
+          
+          // Reload the request
+          await selectRequest(currentRequestId);
+          await loadRequests();
+        } else {
+          const error = await response.json();
+          showNotification(error.error || 'Failed to update approval', 'error');
         }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
+      } catch (error) {
+        console.error('Error updating approval:', error);
+        showNotification('Error updating approval. Please try again.', 'error');
       }
+    }
+
+    // Show notification
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+
+    // Filter tabs
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('filter-tab')) {
+        document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+        e.target.classList.add('active');
+        currentFilter = e.target.dataset.filter;
+        renderRequests();
+      }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadRequests();
       
-      .step.rejected .circle {
-        background: #dc3545 !important;
-        color: white;
-      }
-      
-      .step.rejected .label {
-        color: #dc3545 !important;
-      }
-    `;
-    document.head.appendChild(style);
-  });
-</script>
+      // Auto-refresh every 30 seconds
+      setInterval(() => {
+        loadRequests();
+      }, 30000);
+    });
+  </script>
 </body>
 </html>

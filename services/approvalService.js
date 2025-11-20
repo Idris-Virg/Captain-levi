@@ -389,6 +389,138 @@ async function linkApprovalToAccessRequest(approvalRequestId, accessRequestId) {
   }
 }
 
+// Get approval workflow for access_requests (old system)
+async function getAccessRequestWorkflow(requestId) {
+  const client = await pool.connect();
+  try {
+    // Get the access request
+    const requestResult = await client.query(
+      `SELECT * FROM access_requests WHERE id = $1`,
+      [requestId]
+    );
+
+    if (requestResult.rows.length === 0) {
+      throw new Error('Access request not found');
+    }
+
+    // Get all approval stages for this request
+    const approvalsResult = await client.query(
+      `SELECT * FROM approvals 
+       WHERE request_id = $1 
+       ORDER BY 
+         CASE approver_role 
+           WHEN 'User' THEN 1 
+           WHEN 'Admin' THEN 2 
+           WHEN 'Super_Admin' THEN 3 
+           ELSE 4 
+         END`,
+      [requestId]
+    );
+
+    const workflow = approvalsResult.rows.map(approval => ({
+      role: approval.approver_role,
+      status: approval.decision,
+      comment: approval.comments || '',
+      approver_name: approval.approver_name,
+      approver_email: approval.approver_email,
+      decided_at: approval.decided_at
+    }));
+
+    return {
+      request: requestResult.rows[0],
+      workflow: workflow
+    };
+  } catch (err) {
+    console.error('Error getting access request workflow:', err);
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+// Update approval status for access_requests (old system)
+async function updateAccessRequestApproval(data) {
+  const { request_id, role, status, comment, approver_name, approver_email } = data;
+  
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Update the approval record
+    await client.query(
+      `UPDATE approvals 
+       SET decision = $1, comments = $2, approver_name = $3, approver_email = $4, decided_at = CURRENT_TIMESTAMP
+       WHERE request_id = $5 AND approver_role = $6 AND decision = 'Pending'`,
+      [status, comment || null, approver_name, approver_email, request_id, role]
+    );
+
+    // Check if this approval was updated
+    const checkResult = await client.query(
+      `SELECT * FROM approvals WHERE request_id = $1 AND approver_role = $2`,
+      [request_id, role]
+    );
+
+    if (checkResult.rows.length === 0) {
+      throw new Error('Approval stage not found');
+    }
+
+    // Update access_request status based on approval
+    if (status === 'Approved') {
+      const nextStage = nextStageMap[role];
+      if (nextStage && nextStage !== 'Completed') {
+        const nextAccessStage = stageMap[nextStage] || nextStage;
+        await client.query(
+          `UPDATE access_requests SET current_stage = $1, status = 'In Progress' WHERE id = $2`,
+          [nextAccessStage, request_id]
+        );
+      } else {
+        // All stages approved
+        await client.query(
+          `UPDATE access_requests SET current_stage = 'Completed', status = 'Approved' WHERE id = $1`,
+          [request_id]
+        );
+      }
+    } else if (status === 'Rejected') {
+      await client.query(
+        `UPDATE access_requests SET status = 'Rejected' WHERE id = $1`,
+        [request_id]
+      );
+    }
+
+    await client.query('COMMIT');
+
+    // Return updated workflow
+    const updatedWorkflow = await getAccessRequestWorkflow(request_id);
+    return updatedWorkflow.workflow;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Error updating access request approval:', err);
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+// Get pending access requests for approval
+async function getPendingAccessRequests() {
+  const result = await pool.query(
+    `SELECT ar.*, 
+            (SELECT COUNT(*) FROM approvals a WHERE a.request_id = ar.id AND a.decision = 'Approved') as approved_count,
+            (SELECT COUNT(*) FROM approvals a WHERE a.request_id = ar.id) as total_approvals,
+            (SELECT approver_role FROM approvals a WHERE a.request_id = ar.id AND a.decision = 'Pending' ORDER BY 
+              CASE approver_role 
+                WHEN 'User' THEN 1 
+                WHEN 'Admin' THEN 2 
+                WHEN 'Super_Admin' THEN 3 
+                ELSE 4 
+              END LIMIT 1) as current_approver_role
+     FROM access_requests ar 
+     WHERE ar.status IN ('Pending', 'In Progress')
+     ORDER BY ar.created_at DESC`
+  );
+  return result.rows;
+}
+
 module.exports = {
   getApprovalWorkflow,
   updateApprovalStatus,
@@ -396,5 +528,12 @@ module.exports = {
   getApprovalRequests,
   getAccessRequests,
   getApprovalHistory,
-  linkApprovalToAccessRequest
+  linkApprovalToAccessRequest,
+  getAccessRequestWorkflow,
+  updateAccessRequestApproval,
+  getPendingAccessRequests,
+  syncExistingAccessRequests: async () => {
+    // Placeholder function - can be implemented if needed
+    return { message: 'Sync function not yet implemented' };
+  }
 };

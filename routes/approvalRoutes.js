@@ -27,4 +27,13 @@ router.post('/link-requests', approvalController.linkApprovalToAccessRequest);
 // Sync existing access requests to approval system
 router.post('/sync-access-requests', approvalController.syncAccessRequests);
 
+// Get access request workflow (old system)
+router.get('/access-request-workflow/:request_id', approvalController.getAccessRequestWorkflow);
+
+// Update approval status for access requests (old system)
+router.post('/update-access-request-approval', approvalController.updateAccessRequestApproval);
+
+// Get pending access requests
+router.get('/pending-access-requests', approvalController.getPendingAccessRequests);
+
 module.exports = router;
