@@ -201,7 +201,6 @@ async function updateAccessRequestStatus(approvalRequestId, role, status, approv
       );
       console.log(`Rejected access_request ${accessRequestId}`);
     }
-
     // Also record the approval in the old approvals table
     await client.query(
       `INSERT INTO approvals 
